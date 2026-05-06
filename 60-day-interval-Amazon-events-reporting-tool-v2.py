@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from datetime import datetime
 
 st.set_page_config(page_title="Bimonthly Tracker", layout="centered")
 
@@ -24,9 +23,9 @@ associates = st.sidebar.number_input("Number of Associates",
                                     min_value=1, value=2, step=1)
 
 # ====================== CALCULATIONS ======================
-growth = (present_y / past_x * 100 - 100) if past_x > 0 else 0
+growth = round((present_y / past_x * 100 - 100), 1) if past_x > 0 else 0.0
 annual_projection = present_y * 6
-events_per_assoc = events / associates if associates > 0 else 0
+events_per_assoc = round(events / associates, 1) if associates > 0 else 0.0
 total_event_associates = events * associates
 
 # ====================== METRICS ======================
@@ -42,15 +41,13 @@ with col3:
 
 st.divider()
 
-# ====================== ALTAIR CHARTS ======================
-# Data for charts
+# ====================== PERFORMANCE CHART ======================
 chart_data = pd.DataFrame({
     "Period": ["Past\n(Feb-Mar)", "Present\n(Apr-May)", "Projected\nFull Year"],
     "Value": [past_x, present_y, annual_projection],
     "Type": ["Historical", "Historical", "Projected"]
 })
 
-# Bar Chart
 bar_chart = alt.Chart(chart_data).mark_bar(size=60).encode(
     x=alt.X("Period", sort=None, title=None),
     y=alt.Y("Value", title="Value"),
@@ -58,8 +55,7 @@ bar_chart = alt.Chart(chart_data).mark_bar(size=60).encode(
                                            range=["#4c78a8", "#f58518"])),
     tooltip=["Period", "Value"]
 ).properties(
-    title="Performance Comparison & Projection",
-    width=500,
+    title="Performance Comparison & Annual Projection",
     height=380
 )
 
@@ -78,7 +74,7 @@ with c3:
 
 st.metric("Total (Events × Associates)", f"{total_event_associates:,}")
 
-# Simple pie chart with Altair
+# Pie Chart
 pie_data = pd.DataFrame({
     "Category": ["Events", "Associate Impact"],
     "Value": [events, total_event_associates]
@@ -89,13 +85,12 @@ pie_chart = alt.Chart(pie_data).mark_arc().encode(
     color=alt.Color("Category", scale=alt.Scale(range=["#4c78a8", "#f58518"]))
 ).properties(
     title="Events vs Associate Contribution",
-    width=400,
     height=300
 )
 
 st.altair_chart(pie_chart, use_container_width=True)
 
-# ====================== SUMMARY TABLE ======================
+# ====================== SUMMARY ======================
 st.subheader("Summary")
 summary = pd.DataFrame({
     "Metric": [
@@ -122,4 +117,4 @@ summary = pd.DataFrame({
 
 st.dataframe(summary, hide_index=True, use_container_width=True)
 
-st.caption("Simplified version using Altair • Ready for deployment")
+st.caption("Simplified Bimonthly Tracker • Streamlit 1.39.0 + Python 3.14.4")
